@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modificadores de acceso y encapsulamiento en C#</title>
+<style>
+  :root {
+    --side: #10302f;
+    --side-text: #cfe6e3;
+    --accent: #0f8b7f;
+    --accent-2: #e0a526;
+    --bg: #f3f6f6;
+    --card: #ffffff;
+    --text: #17262a;
+    --muted: #55696d;
+    --line: #d5e0e0;
+    --code: #0c1f21;
+    --code-text: #dff3f0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1718; --card: #112426; --text: #e3f0ee; --muted: #94adaa;
+      --line: #21393b; --accent: #3fc4b5; --code: #061112;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif; line-height: 1.65;
+  }
+  aside {
+    position: fixed; inset: 0 auto 0 0; width: 250px; background: var(--side);
+    color: var(--side-text); padding: 28px 20px; overflow-y: auto;
+  }
+  aside h1 { font-size: 1.15rem; margin: 0 0 4px; color: #fff; }
+  aside p { margin: 0 0 24px; font-size: .85rem; opacity: .8; }
+  aside a {
+    display: block; padding: 9px 12px; margin-bottom: 4px; border-radius: 6px;
+    color: var(--side-text); text-decoration: none; font-size: .95rem;
+    border-left: 3px solid transparent;
+  }
+  aside a:hover, aside a:focus-visible, aside a.on {
+    background: rgba(255,255,255,.08); border-left-color: var(--accent-2); color: #fff;
+  }
+  main { margin-left: 250px; padding: 40px 48px 60px; max-width: 1000px; }
+  .hero {
+    background: var(--side); color: #fff; border-radius: 14px; padding: 36px;
+    border-bottom: 5px solid var(--accent-2);
+  }
+  .hero h2 { margin: 0 0 8px; font-size: 2rem; line-height: 1.2; }
+  .hero p { margin: 0; color: var(--side-text); }
+  section { margin-top: 44px; scroll-margin-top: 20px; }
+  h3 { font-size: 1.5rem; margin: 0 0 12px; }
+  p { max-width: 70ch; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px 24px;
+  }
+  .analogia {
+    margin-top: 14px; border-left: 4px solid var(--accent-2); padding: 10px 16px;
+    background: var(--card); border-radius: 0 8px 8px 0;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card h4 { margin: 0 0 6px; color: var(--accent); }
+  .card p { margin: 0; font-size: .95rem; }
+  details {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    margin-bottom: 10px; padding: 0 18px;
+  }
+  summary { cursor: pointer; padding: 14px 0; font-weight: 700; }
+  summary code { color: var(--accent); }
+  details p { margin: 0 0 14px; }
+  code { font-family: Consolas, "Courier New", monospace; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tabs button {
+    font: inherit; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--text); cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tabs button:focus-visible { outline: 3px solid var(--accent-2); }
+  .panel[hidden] { display: none; }
+  .enunciado { margin-bottom: 14px; }
+  .barra {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #1b3b3d; color: #cfe6e3; padding: 8px 14px;
+    border-radius: 8px 8px 0 0; font-size: .85rem;
+  }
+  .barra button {
+    font: inherit; font-size: .8rem; background: transparent; color: inherit;
+    border: 1px solid rgba(255,255,255,.35); border-radius: 4px; padding: 2px 10px; cursor: pointer;
+  }
+  pre {
+    margin: 0; background: var(--code); color: var(--code-text); padding: 16px;
+    border-radius: 0 0 8px 8px; overflow-x: auto; font-size: .85rem; line-height: 1.5;
+  }
+  footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
+  @media (max-width: 800px) {
+    aside { position: static; width: auto; padding: 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    aside h1, aside p { width: 100%; margin-bottom: 4px; }
+    aside a { margin: 0; border-left: 0; background: rgba(255,255,255,.08); }
+    main { margin-left: 0; padding: 24px 16px 48px; }
+    .hero { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <h1>C# en clase</h1>
+  <p>Modificadores de acceso y encapsulamiento</p>
+  <nav>
+    <a href="#id1">¿Qué es el encapsulamiento?</a>
+    <a href="#id2">Modificadores de acceso</a>
+    <a href="#id3">Para qué sirve el encapsulamiento</a>
+    <a href="#id4">Para qué sirven los modificadores</a>
+    <a href="#id5">Ejemplos</a>
+  </nav>
+</aside>
+
+<main>
+  <div class="hero">
+    <h2>Modificadores de acceso y encapsulamiento de clases</h2>
+    <p>Bienvenido Profesor Robyirt ;)</p>
+  </div>
+
+  <section id="id1">
+    <h3>¿Qué es el encapsulamiento?</h3>
+    <p>
+      El encapsulamiento (u ocultamiento de información) consiste en agrupar los datos y los métodos
+      que operan sobre ellos dentro de una misma clase, y restringir el acceso directo a sus
+      componentes internos. Así se evita que el estado de un objeto sea modificado de forma
+      incorrecta por código externo. El objeto expone una interfaz controlada, normalmente mediante
+      propiedades o métodos públicos.
+    </p>
+    <div class="analogia">
+      <strong>Analogía:</strong> en un automóvil, el motor y los pistones están ocultos bajo el capó.
+      No los manejas directamente: usas el volante, los pedales y la llave.
+    </div>
+  </section>
+
+  <section id="id2">
+    <h3>¿Qué son los modificadores de acceso?</h3>
+    <p>
+      Son palabras clave que definen la visibilidad de clases, métodos, propiedades y otros miembros
+      desde otras partes del código o de otros ensamblados (archivos .dll). Abre cada uno para ver su alcance.
+    </p>
+    <details open>
+      <summary><code>public</code> · Acceso sin límites</summary>
+      <p>Se puede acceder desde cualquier parte del código, incluso desde otros proyectos o ensamblados.</p>
+    </details>
+    <details>
+      <summary><code>private</code> · Solo la propia clase</summary>
+      <p>Ninguna otra clase, ni siquiera las derivadas, puede verlo ni modificarlo. Es el nivel por defecto de los miembros de una clase.</p>
+    </details>
+    <details>
+      <summary><code>protected</code> · La clase y sus derivadas</summary>
+      <p>Accesible desde la clase contenedora y desde cualquier clase que herede de ella, incluso en otros ensamblados.</p>
+    </details>
+    <details>
+      <summary><code>internal</code> · Mismo proyecto</summary>
+      <p>Accesible solo dentro del ensamblado actual. Otros proyectos externos no pueden usarlo.</p>
+    </details>
+    <details>
+      <summary><code>protected internal</code> · Proyecto o derivadas</summary>
+      <p>Combina ambos: acceso desde el ensamblado actual o desde clases derivadas ubicadas en otro ensamblado.</p>
+    </details>
+    <details>
+      <summary><code>private protected</code> · Solo desde C# 7.2</summary>
+      <p>Acceso únicamente dentro de la clase contenedora o de clases derivadas en el mismo ensamblado. No existe en C# 5; se menciona como evolución del lenguaje.</p>
+    </details>
+  </section>
+
+  <section id="id3">
+    <h3>¿Para qué sirve el encapsulamiento?</h3>
+    <div class="grid">
+      <div class="card">
+        <h4>Integridad de los datos</h4>
+        <p>Evita valores inválidos, como una edad negativa o un saldo alterado sin validaciones.</p>
+      </div>
+      <div class="card">
+        <h4>Mantenimiento más fácil</h4>
+        <p>Puedes mejorar el código interno de una clase sin romper el resto de la aplicación.</p>
+      </div>
+      <div class="card">
+        <h4>Uso más simple</h4>
+        <p>Quien use tu clase solo ve lo que necesita, sin la complejidad que ocurre por dentro.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="id4">
+    <h3>¿Para qué sirven los modificadores de acceso?</h3>
+    <p>Son las herramientas con las que construyes el encapsulamiento: decides quién ve y usa cada parte.</p>
+    <div class="grid">
+      <div class="card"><h4>public</h4><p>Expone lo que otras partes del sistema o desarrolladores necesitan usar, como los botones de una máquina.</p></div>
+      <div class="card"><h4>private</h4><p>Blinda los datos sensibles y la lógica interna para evitar errores accidentales.</p></div>
+      <div class="card"><h4>protected</h4><p>Crea confianza dentro de una familia de clases: el padre comparte con sus hijas lo que oculta al resto.</p></div>
+      <div class="card"><h4>internal</h4><p>Protege el código a nivel de proyecto, visible entre archivos propios pero no para librerías externas.</p></div>
+    </div>
+  </section>
+
+  <section id="id5">
+    <h3>Ejemplos</h3>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" aria-controls="p1" id="t1">Encapsulamiento</button>
+      <button role="tab" aria-selected="false" aria-controls="p2" id="t2">Modificadores de acceso</button>
+    </div>
+
+    <div class="panel" id="p1" role="tabpanel" aria-labelledby="t1">
+      <p class="enunciado">
+        <strong>Ejercicio:</strong> sistema de cuenta bancaria digital. El saldo debe estar protegido de
+        modificaciones directas; todo depósito o retiro debe pasar por validaciones de monto y fondos.
+      </p>
+      <div class="barra"><span>CuentaBancaria.cs</span><button type="button">Copiar</button></div>
+<pre><code>using System;
+
+namespace ConsoleApplication26
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            CuentaBancaria miCuenta = new CuentaBancaria();
+
+            miCuenta.Depositar(1000.00);
+            miCuenta.Retirar(350.50);
+
+            Console.WriteLine("El saldo actual en la cuenta es: $" + miCuenta.ObtenerSaldo());
+            Console.ReadKey();
+        }
+    }
+
+    class CuentaBancaria
+    {
+        // Privado: nadie fuera de esta clase puede alterarlo
+        private double saldo = 0.0;
+
+        public void Depositar(double monto)
+        {
+            if (monto &gt; 0)
+            {
+                saldo += monto;
+                Console.WriteLine("Depósito exitoso de: $" + monto);
+            }
+            else
+            {
+                Console.WriteLine("El monto a depositar debe ser mayor a cero.");
+            }
+        }
+
+        public void Retirar(double monto)
+        {
+            if (monto &gt; 0 &amp;&amp; monto &lt;= saldo)
+            {
+                saldo -= monto;
+                Console.WriteLine("Retiro exitoso de: $" + monto);
+            }
+            else
+            {
+                Console.WriteLine("Fondos insuficientes o monto inválido.");
+            }
+        }
+
+        public double ObtenerSaldo()
+        {
+            return saldo;
+        }
+    }
+}</code></pre>
+    </div>
+
+    <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+      <p class="enunciado">
+        <strong>Ejercicio:</strong> estructura de datos de un sistema escolar con herencia, mostrando qué
+        variables se exponen al programa principal (public), cuáles quedan ocultas (private) y cuáles se
+        comparten solo con clases derivadas (protected).
+      </p>
+      <div class="barra"><span>Estudiante.cs</span><button type="button">Copiar</button></div>
+<pre><code>using System;
+
+namespace ConsoleApplication26
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Estudiante alumno = new Estudiante();
+
+            // Público: se asigna directamente desde Main
+            alumno.Nombre = "Alejandro";
+
+            // Estas líneas darían error si se descomentan:
+            // alumno.edad = 20;           // 'edad' es private
+            // alumno.calificacion = 19;   // 'calificacion' es protected
+
+            alumno.MostrarDatos();
+            Console.ReadKey();
+        }
+    }
+
+    class Persona
+    {
+        // Protegido: visible en esta clase y en las que heredan de ella
+        protected double calificacion = 18.5;
+    }
+
+    class Estudiante : Persona
+    {
+        // Público: accesible desde cualquier lugar
+        public string Nombre;
+
+        // Privado: solo dentro de Estudiante
+        private int edad = 21;
+
+        public void MostrarDatos()
+        {
+            Console.WriteLine("--- DATOS DEL ESTUDIANTE ---");
+            Console.WriteLine("Nombre (Público): " + Nombre);
+            Console.WriteLine("Edad (Privado, accedido internamente): " + edad);
+            Console.WriteLine("Calificación (Protegido por herencia): " + calificacion);
+        }
+    }
+}</code></pre>
+    </div>
+  </section>
+
+  <footer>Basado en la página MyRepo · Clase de C# 5</footer>
+</main>
+
+<script>
+  // Pestañas de ejemplos
+  var tabs = document.querySelectorAll('.tabs button');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) {
+        var activo = t === tab;
+        t.setAttribute('aria-selected', activo);
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !activo;
+      });
+    });
+  });
+
+  // Botones de copiar código
+  document.querySelectorAll('.barra button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var codigo = btn.parentElement.nextElementSibling.innerText;
+      var listo = function () {
+        btn.textContent = 'Copiado';
+        setTimeout(function () { btn.textContent = 'Copiar'; }, 1500);
+      };
+      if (navigator.clipboard) { navigator.clipboard.writeText(codigo).then(listo); }
+    });
+  });
+
+  // Marca la sección activa en la barra lateral
+  var enlaces = document.querySelectorAll('aside a');
+  var observador = new IntersectionObserver(function (entradas) {
+    entradas.forEach(function (e) {
+      if (e.isIntersecting) {
+        enlaces.forEach(function (a) {
+          a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  document.querySelectorAll('section').forEach(function (s) { observador.observe(s); });
+</script>
+</body>
+</html>
